@@ -7,6 +7,8 @@ services:
       - "8083:8083"
     volumes:
       - influx_data:/var/lib/influxdb2
+    networks:
+      - default
 
   couchbase:
     image: couchbase:latest
@@ -22,6 +24,8 @@ services:
       COUCHBASE_ADMINISTRATOR_PASSWORD: ${COUCHBASE_PASSWORD}
     volumes:
       - couchbase_data:/opt/couchbase/var
+    networks:
+      - default
 
   flowRunner:
     container_name: flow-runner
@@ -45,7 +49,12 @@ services:
     depends_on:
       - influxdb
       - couchbase
+    networks:
+     - default
 volumes:
   flowrunner_data:
   influx_data:
   couchbase_data:
+networks:
+  default:
+    driver: bridge
