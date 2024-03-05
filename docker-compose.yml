@@ -1,0 +1,51 @@
+version: '3'
+services:
+  influxdb:
+    image: influxdb:latest
+    ports:
+      - "8086:8086"
+      - "8083:8083"
+    volumes:
+      - influx_data:/var/lib/influxdb2
+
+  couchbase:
+    image: couchbase:latest
+    ports:
+      - "8091:8091"
+      - "8092:8092"
+      - "8093:8093"
+      - "9123:9123"
+      - "11280:11280"
+      - "11210:11210"
+    environment:
+      COUCHBASE_ADMINISTRATOR_USERNAME: ${COUCHBASE_USERNAME}
+      COUCHBASE_ADMINISTRATOR_PASSWORD: ${COUCHBASE_PASSWORD}
+    volumes:
+      - couchbase_data:/opt/couchbase/var
+
+  flowRunner:
+    container_name: flow-runner
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sysflowrunner:latest
+    environment:
+      COUCHBASE_URL: ${COUCHBASE_URL}
+      COUCHBASE_USERNAME: ${COUCHBASE_USERNAME}
+      COUCHBASE_PASSWORD: ${COUCHBASE_PASSWORD}
+      COUCHBASE_BUCKET: ${COUCHBASE_BUCKET}
+      INFLUXDB_USERNAME: ${INFLUXDB_USERNAME}
+      INFLUXDB_PASSWORD: ${INFLUXDB_PASSWORD}
+      INFLUXDB_TOKEN: ${INFLUXDB_TOKEN}
+      INFLUXDB_URL: ${INFLUXDB_URL}
+      INFLUXDB_BUCKET_NAME: ${INFLUXDB_BUCKET_NAME}
+      INFLUXDB_ORG: ${INFLUXDB_ORG}
+    volumes:
+      - flowrunner_data:/var/lib/rabbitmq/
+    depends_on:
+      - influxdb
+      - couchbase
+volumes:
+  flowrunner_data:
+  influx_data:
+  couchbase_data:
