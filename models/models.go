@@ -5,6 +5,5 @@ type SysBeacon struct {
 	RabbitmqPassword string
 	RabbitmqUsername string
 	RabbitmqQueue    string
-	InfluxBucket     string
 	RabbitmqPort     string
 }

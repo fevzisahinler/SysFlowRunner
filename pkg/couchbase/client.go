@@ -47,7 +47,7 @@ func (c *CouchbaseClient) GetDocumentIDs(bucketName string) ([]string, error) {
 }
 
 func (c *CouchbaseClient) GetSysBeaconByID(bucketName, id string) (*models.SysBeacon, error) {
-	query := fmt.Sprintf("SELECT rabbitmq.hostname AS `rabbitmq.host`, rabbitmq.passwd AS `rabbitmq.passwd`, rabbitmq.username AS `rabbitmq.username`, rabbitmq.queue AS `rabbitmq.queue`, influxbucket, rabbitmq.port AS `rabbitmq.port` FROM `%s` WHERE META().id = $1", bucketName)
+	query := fmt.Sprintf("SELECT rabbitmq.hostname AS `rabbitmq.host`, rabbitmq.passwd AS `rabbitmq.passwd`, rabbitmq.username AS `rabbitmq.username`, rabbitmq.queue AS `rabbitmq.queue`, rabbitmq.port AS `rabbitmq.port` FROM `%s` WHERE META().id = $1", bucketName)
 	rows, err := c.Cluster.Query(query, &gocb.QueryOptions{PositionalParameters: []interface{}{id}})
 	if err != nil {
 		return nil, err
@@ -59,7 +59,6 @@ func (c *CouchbaseClient) GetSysBeaconByID(bucketName, id string) (*models.SysBe
 		RabbitmqPassword string `json:"rabbitmq.passwd"`
 		RabbitmqUsername string `json:"rabbitmq.username"`
 		RabbitmqQueue    string `json:"rabbitmq.queue"`
-		InfluxBucket     string `json:"influxbucket"`
 		RabbitmqPort     string `json:"rabbitmq.port"`
 	}
 	if rows.Next() {
@@ -72,7 +71,6 @@ func (c *CouchbaseClient) GetSysBeaconByID(bucketName, id string) (*models.SysBe
 			RabbitmqPassword: result.RabbitmqPassword,
 			RabbitmqUsername: result.RabbitmqUsername,
 			RabbitmqQueue:    result.RabbitmqQueue,
-			InfluxBucket:     result.InfluxBucket,
 			RabbitmqPort:     result.RabbitmqPort,
 		}, nil
 	}
