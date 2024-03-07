@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/joho/godotenv"
-	"log"
 	"os"
 	"sync"
+	"sysflowrunner/logger" // logger paketini import et
 	"sysflowrunner/pkg/couchbase"
 	"sysflowrunner/pkg/influxdb"
 	"sysflowrunner/pkg/rabbitmq"
@@ -14,8 +14,9 @@ import (
 )
 
 func main() {
+	logger.Init()
 	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file:", err)
+		logger.Fatal("Error loading .env file: %v", err) // logger kullanarak loglama
 	}
 
 	couchbaseURL := os.Getenv("COUCHBASE_URL")
@@ -32,7 +33,7 @@ func main() {
 
 	docIds, err := couchbaseClient.GetDocumentIDs("sysbeacon")
 	if err != nil {
-		log.Fatalf("Error fetching document IDs: %v", err)
+		logger.Error("Error fetching document IDs: %v", err) // logger kullanarak loglama
 	}
 
 	var wg sync.WaitGroup
@@ -40,7 +41,7 @@ func main() {
 	for _, id := range docIds {
 		beacon, err := couchbaseClient.GetSysBeaconByID(couchbaseBucket, id)
 		if err != nil {
-			log.Printf("Error fetching SysBeacon by ID: %v", err)
+			logger.Error("Error fetching SysBeacon by ID: %v", err)
 			continue
 		}
 
@@ -49,7 +50,7 @@ func main() {
 
 		rmqClient, err := rabbitmq.NewRabbitMQClient(rabbitMQURL)
 		if err != nil {
-			log.Printf("Error connecting to RabbitMQ: Host: %s Port: %s Password: %s %v", beacon.RabbitmqHostname, beacon.RabbitmqPort, beacon.RabbitmqPassword, err)
+			logger.Error("Error connecting to RabbitMQ: Host: %s Port: %s Password: %s %v", beacon.RabbitmqHostname, beacon.RabbitmqPort, beacon.RabbitmqPassword, err) // logger kullanarak loglama
 			continue
 		}
 
@@ -57,20 +58,19 @@ func main() {
 			defer wg.Done()
 			msgChan, err := rmqClient.ConsumeQueue(queueName)
 			if err != nil {
-				log.Printf("Error consuming queue: %v", err)
+				logger.Error("Error consuming queue: %v", err)
 				return
 			}
 			for d := range msgChan {
 				var data map[string]interface{}
-				fmt.Printf("Raw Data: %s\n", d)
 				if err := json.Unmarshal(d, &data); err != nil {
-					log.Printf("Error unmarshaling message: %v", err)
+					logger.Error("Error unmarshaling message: %v", err)
 					continue
 				}
-				log.Printf("Received data: %+v, %v", d, time.Now())
+				logger.Info("Received data: %+v, Time: %v", data, time.Now())
 
 				if err := influxDBClient.WriteData(bucketName, rabbitmqHostname, data); err != nil {
-					log.Printf("Error writing data to InfluxDB: %v", err)
+					logger.Error("Error writing data to InfluxDB: %v", err)
 				}
 			}
 		}(beacon.RabbitmqQueue, beacon.RabbitmqHostname)
