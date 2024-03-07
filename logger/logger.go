@@ -4,6 +4,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"io"
+	"os"
 )
 
 var Log = logrus.New()
@@ -22,7 +23,7 @@ func Init() {
 		Compress:   true,
 	}
 
-	Log.SetOutput(io.MultiWriter(logFile))
+	Log.SetOutput(io.MultiWriter(os.Stdout, logFile))
 
 	Log.Level = logrus.ErrorLevel
 }
