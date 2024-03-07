@@ -3,10 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/joho/godotenv"
 	"os"
 	"sync"
-	"sysflowrunner/logger" // logger paketini import et
+	"sysflowrunner/logger"
 	"sysflowrunner/pkg/couchbase"
 	"sysflowrunner/pkg/influxdb"
 	"sysflowrunner/pkg/rabbitmq"
@@ -15,9 +14,6 @@ import (
 
 func main() {
 	logger.Init()
-	if err := godotenv.Load(); err != nil {
-		logger.Fatal("Error loading .env file: %v", err) // logger kullanarak loglama
-	}
 
 	couchbaseURL := os.Getenv("COUCHBASE_URL")
 	couchbaseUsername := os.Getenv("COUCHBASE_USERNAME")
@@ -33,7 +29,7 @@ func main() {
 
 	docIds, err := couchbaseClient.GetDocumentIDs("sysbeacon")
 	if err != nil {
-		logger.Error("Error fetching document IDs: %v", err) // logger kullanarak loglama
+		logger.Error("Error fetching document IDs: %v", err)
 	}
 
 	var wg sync.WaitGroup
@@ -50,7 +46,7 @@ func main() {
 
 		rmqClient, err := rabbitmq.NewRabbitMQClient(rabbitMQURL)
 		if err != nil {
-			logger.Error("Error connecting to RabbitMQ: Host: %s Port: %s Password: %s %v", beacon.RabbitmqHostname, beacon.RabbitmqPort, beacon.RabbitmqPassword, err) // logger kullanarak loglama
+			logger.Error("Error connecting to RabbitMQ: Host: %s Port: %s Password: %s %v", beacon.RabbitmqHostname, beacon.RabbitmqPort, beacon.RabbitmqPassword, err)
 			continue
 		}
 
