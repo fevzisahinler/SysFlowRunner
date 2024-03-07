@@ -3,7 +3,6 @@ package influxdb
 import (
 	"context"
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
-	"log"
 	"time"
 )
 
@@ -29,9 +28,6 @@ func (client *InfluxDBClient) WriteData(bucketName, hostname string, data map[st
 	tsFloat := data["timestamp"].(float64)
 	timestamp := int64(tsFloat)
 	ts = time.Unix(timestamp, 0)
-
-	log.Printf("Writing data to InfluxDB: Hostname: %s, CPU Used: %f, CPU Total: %f, Memory Used: %f, Memory Total: %f, Timestamp: %d",
-		hostname, cpuUsed, cpuTotal, memoryUsed, memoryTotal, ts)
 
 	p := influxdb2.NewPoint(
 		"system_metrics",
