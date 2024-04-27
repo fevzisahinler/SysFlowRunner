@@ -13,7 +13,7 @@ RUN CGO_ENABLED=1 GOOS=linux go build -o sysflowrunner main.go
 
 FROM ubuntu:latest
 
-COPY .env .
+#COPY .env .
 
 COPY --from=builder /app/sysflowrunner /usr/local/bin/sysflowrunner
 
