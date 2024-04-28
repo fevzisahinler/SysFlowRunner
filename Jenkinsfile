@@ -16,7 +16,7 @@ pipeline {
                 script {
                     def scannerHome = tool 'sonar-scanner';
                     withSonarQubeEnv('sonarqube-server') {
-                        sh "${scannerHome}/bin/sonar-scanner"
+                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=SysSyncRunner"
                     }
                 }
             }
