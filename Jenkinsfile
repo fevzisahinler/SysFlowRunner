@@ -12,11 +12,15 @@ pipeline {
             }
         }
         stage('SonarQube Analysis') {
-        def scannerHome = tool 'sonar-scanner';
-        withSonarQubeEnv(installationName: 'sonarqube-server') {
-        sh "${scannerHome}/bin/sonar-scanner"
-    }
-}
+            steps {
+                script {
+                    def scannerHome = tool 'sonar-scanner';
+                    withSonarQubeEnv('sonarqube-server') {
+                        sh "${scannerHome}/bin/sonar-scanner"
+                    }
+                }
+            }
+        }
         stage('Build and Push Image') {
             steps {
                 script {
