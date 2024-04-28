@@ -11,14 +11,20 @@ pipeline {
                 checkout scm
             }
         }
+        stage('SonarQube Analysis') {
+        def scannerHome = tool 'sonar-scanner';
+        withSonarQubeEnv(installationName: 'sonarqube-server') {
+        sh "${scannerHome}/bin/sonar-scanner"
+    }
+}
         stage('Build and Push Image') {
             steps {
                 script {
-                    docker.withRegistry('https://ghcr.io', DOCKER_CREDENTIALS_ID) {
+                    //docker.withRegistry('https://ghcr.io', DOCKER_CREDENTIALS_ID) {
                         def imageTag = "ghcr.io/fevzisahinler/sysflowrunner:${env.DATE_TAG}-${env.BUILD_ID}"
                         def dockerImage = docker.build(imageTag)
-                        dockerImage.push()
-                    }
+                        //dockerImage.push()
+                    //}
                 }
             }
         }
